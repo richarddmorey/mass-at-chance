@@ -1,0 +1,24 @@
+model {
+
+  for(i in 1:I){
+    for(j in 1:J){
+      y[i,j] ~ dbin(p[i,j], N[i,j])
+      # linear transformation of p to account for different lower bound
+      p[i,j] <- (q[i,j] - .5) * 2 * (1 - chance.p) + chance.p
+      # MAC link
+      probit(q[i,j]) <- x[i,j] * (alpha[i] > beta[j]) 
+      # model
+      x[i,j] <- theta[i] * (alpha[i] - beta[j]) 
+    }
+    alpha[i] ~ dnorm(0, prec_alpha)
+    theta[i] ~ dnorm(0, prec_theta) T(0,)
+  }
+
+  for(j in 1:J){
+    beta[j] ~ dnorm(0, 1)
+  }
+
+  prec_alpha ~ dgamma(2, 1)
+  prec_theta ~ dgamma(2, 1)
+
+}
